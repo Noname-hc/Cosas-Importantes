@@ -23,7 +23,7 @@ class File_P{
         void Leer_Archivo();
         void Leer_Tipo_De_Archivo(char tipo_de_archivo);// Primero hay que configurar filetype a leer y luego ingresamos el
                                                         // tipo_de_archivo que queremos mostrar por terminal
-        void Leer_Linea();
+        void Leer_Linea(int N_linea);
 
         void EscribirArchivo(); // Escribe varias lineas al final del archivo
         void Escribir_Al_Final(std::string &frase);

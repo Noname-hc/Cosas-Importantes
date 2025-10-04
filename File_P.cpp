@@ -13,7 +13,17 @@ File_P::File_P(){
 
 }
 
+File_P::~File_P(){
+    fs.close();
+
+}
+
 void File_P::set_fs(const std::string &ruta, const std::string &Modo){// Modo es rw, r o w
+    if(fs.is_open()){
+        fs.close();
+    }
+    fs.clear();
+
     this->ruta = ruta;
 
     if(Modo == "r"){
@@ -35,24 +45,32 @@ void File_P::set_FileType(char tipo_de_archivo){
 //=====================================================================================================
 
 void File_P::Leer_Archivo(){
-    this->set_fs(ruta, "r");
+    this->set_fs(ruta, "rw");
 
     std::vector<std::string> lineas;
     std::string line;
 
     lineas.clear();
-    while(getline(fs, line)){
-        lineas.insert(lineas.begin() + lineas.size()-1, line); //lineas.push_back(line);
-    }
-    fs.close();
+    fs.clear();
+    fs.seekg(0);
 
-}
-void File_P::EscribirArchivo(){
-    if(fs.is_open()){
-        fs.close();
+    while(getline(fs, line)){
+        lineas.push_back(line);
     }
+
+    for (int i=0; i<lineas.size(); i++){
+        std::cout << lineas[i] << std::endl;
+
+    }
+        fs.close();
+    
+}
+
+void File_P::EscribirArchivo(){
+
     this->set_fs(ruta, "w");
 
+    fs << std::endl;
     std::cout << "ya puede escribir, para parar ingrese 'stop'" << std::endl;
 
     std::string line;
@@ -74,11 +92,9 @@ void File_P::Escribir_Al_Final(std::string &frase){
     fs << frase << std::endl;
 }
 
-void File_P::Reescribir_Linea(std::string &frase, int N_linea){
+/*void File_P::Reescribir_Linea(std::string &frase, int N_linea){
     // Apertura del archivo
-    if(fs.is_open()){
-        fs.close();
-    }
+
     this->set_fs(ruta, "rw");
 
     // Leemos el archivo y obtenemos las lineas
@@ -86,6 +102,7 @@ void File_P::Reescribir_Linea(std::string &frase, int N_linea){
     int linea_actual = 0; // ultima linea escrita
     size_t pos = 0;
 
+    fs.clear();
     fs.seekp(0);
     fs.seekg(0);
 
@@ -101,21 +118,65 @@ void File_P::Reescribir_Linea(std::string &frase, int N_linea){
 
     // Agregamos espacios para completar la linea
     std::string espacios = "";
-    
+
     getline(fs, linea_aux);
     for(int i = 0; i < (linea_aux.size() - frase.size()); i++){
         espacios += " ";
     }
     // Escribimos la linea
+    fs.clear();
+    fs.seekp(pos);
     fs << frase + espacios;
+}*/
+
+void File_P::Reescribir_Linea(std::string &frase, int N_linea) {
+
+    // Abrir para lectura
+    set_fs(ruta, "r");
+    if (!fs.is_open()) {
+        std::cerr << "No se pudo abrir el archivo para lectura.\n";
+        return;
+    }
+
+    std::vector<std::string> lineas;
+    std::string linea;
+
+    while (std::getline(fs, linea)) {
+        lineas.push_back(linea);
+    }
+    fs.close();
+
+    // Verificar que la línea exista
+    if (N_linea < 1 || N_linea > (int)lineas.size()) {
+        std::cerr << "Número de línea inválido.\n";
+        return;
+    }
+
+    // Reemplazar la línea
+    lineas[N_linea - 1] = frase;
+
+    // Reescribir todo el archivo
+    set_fs(ruta, "rw");
+    if (!fs.is_open()) {
+        std::cerr << "No se pudo abrir el archivo para escribir.\n";
+        return;
+    }
+
+    fs.clear();
+    fs.seekp(0, std::ios::beg);
+    for (const auto &l : lineas) {
+        fs << l << '\n';
+    }
+
+    fs.close();
+
+    std::cout << "✅ Línea " << N_linea << " reescrita correctamente.\n";
 }
 
 
 // Método para leer y mostrar en formato elegido (csv, json, xml)
 void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
-    if (fs.is_open()) {
-        fs.close();
-    }
+
     this->set_fs(ruta,"r");
 
     std::string linea;
@@ -183,3 +244,52 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
             break;
     }
 }
+
+    void File_P::Leer_Linea(int N_linea){
+        // Apertura del archivo
+        this->set_fs(ruta, "rw");
+
+        // Leemos el archivo y obtenemos las lineas
+        std::string linea_aux;
+        int linea_actual = 0; // ultima linea escrita
+
+        fs.clear();
+        fs.seekp(0);
+        fs.seekg(0);
+
+        bool leida = false;
+        while(getline(fs, linea_aux)){
+            linea_actual++;
+
+            if(linea_actual == N_linea){
+                leida= true;
+                break;
+            }
+        }
+
+        if(leida){
+            std::cout << linea_aux << std::endl;
+    
+        }else{
+            std::cout << "La linea no se pudo leer" << std::endl;
+        }
+    }
+
+    void File_P::Borrar_Archivo(){
+
+    }
+
+    void File_P::MostrarDatos(){
+
+    }
+
+    void File_P::MostrarArchivo(){
+        this->set_fs(ruta, "r");
+        std::string linea_aux = "";
+        std::string contenido;
+
+        while(getline(fs, linea_aux)){
+            contenido += linea_aux + "\n";
+        }
+        std::cout << contenido << std::endl;
+    }
