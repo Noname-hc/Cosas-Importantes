@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <variant>
-
+     
 #include <fstream>
 
 using datos = std::variant<int, double, std::string>;
@@ -40,7 +40,7 @@ class File_P{
         std::fstream fs;
         std::vector<datos> V_dato;
         std::string ruta; // Ruta relativa desde el ejecutable hasta el archivo fs
-        char Filetype;
+        char FileType;
 
 
 };
