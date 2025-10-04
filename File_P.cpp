@@ -3,6 +3,7 @@
 #include <vector>
 #include <variant>
 #include <fstream>
+#include <algorithm>
 
 #include "File_P.h"
 
@@ -175,7 +176,7 @@ void File_P::Reescribir_Linea(std::string &frase, int N_linea) {
 
 
 // Método para leer y mostrar en formato elegido (csv, json, xml)
-void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
+/*void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
 
     this->set_fs(ruta,"r");
 
@@ -243,53 +244,181 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
             std::cerr << "Error: tipo de archivo no soportado. Usa 'c'=CSV, 'j'=JSON, 'x'=XML.\n";
             break;
     }
+}*/
+
+void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
+    // Apertura del archivo en modo lectura
+    this->set_fs(ruta, "r");
+
+    // Guardamos todo el archivo en un vector de strings
+    std::vector<std::string> contenido; 
+    contenido.clear();
+
+    std::string linea_aux = "";
+    while(getline(fs, linea_aux)){
+        contenido.push_back(linea_aux);
+    }
+
+    // Manejo de los tipos de archivo a la hora de leer
+    size_t pos = 0;
+
+    std::string str_aux = "";
+    std::string key_w;
+    std::string valor;
+
+    std::vector<datos> info_k;  
+    std::vector<datos> info_v;  
+    info_k.clear();
+    info_v.clear();
+
+
+    switch (FileType)
+    {
+        case 'x':
+            for (int i=0; i < contenido.size();i++){
+                str_aux = contenido[i];
+
+                pos = str_aux.find("<"); 
+                size_t pos_f = str_aux.find(">");
+
+                if(pos != std::string::npos || pos_f != std::string::npos){
+
+                    str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
+
+                    key_w = str_aux.substr(pos+1, pos_f-(pos+1));
+                    info_k.push_back(key_w);
+
+                    pos = str_aux.find("</");
+                    valor = str_aux.substr(pos_f+1, pos-(pos_f+1));
+    
+                    if(std::stoi(valor)){
+                        info_v.push_back(std::stoi(valor));
+
+                    }else if(std::stod(valor)){
+                        info_v.push_back(std::stod(valor));
+                    
+                    }else{
+                        info_v.push_back(valor);
+                    }
+
+                } else{
+                    continue;
+                }   
+            }
+        break;
+
+        case 'c':
+            for (int i=0; i < contenido.size();i++){
+                str_aux = contenido[i];
+
+                pos = str_aux.find(","); // Buscamos ","
+                if(pos != std::string::npos){
+
+                    str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
+                    key_w = str_aux.substr(0, pos); 
+                    valor = str_aux.substr(pos+1);
+
+                    info_k.push_back(key_w);
+
+                    if(std::stoi(valor)){
+                        info_v.push_back(std::stoi(valor));
+
+                    }else if(std::stod(valor)){
+                        info_v.push_back(std::stod(valor));
+                    
+                    }else{
+                        info_v.push_back(valor);
+                    }
+
+                } else{
+                    continue;
+                }   
+            }
+        break;
+
+        case 'j':
+            for (int i=0; i < contenido.size();i++){
+                str_aux = contenido[i];
+
+                pos = str_aux.find(":"); // Buscamos ":"
+                if(pos != std::string::npos){
+
+                    str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
+                    key_w = str_aux.substr(0, pos); 
+                    valor = str_aux.substr(pos+1);
+
+                    info_k.push_back(key_w);
+
+                    if(std::stoi(valor)){
+                        info_v.push_back(std::stoi(valor));
+
+                    }else if(std::stod(valor)){
+                        info_v.push_back(std::stod(valor));
+                    
+                    }else{
+                        info_v.push_back(valor);
+                    }
+
+                } else{
+                    continue;
+                }   
+            }
+        break;
+    
+        default:
+        
+        break;
+    }
 }
 
-    void File_P::Leer_Linea(int N_linea){
-        // Apertura del archivo
-        this->set_fs(ruta, "rw");
+void File_P::Leer_Linea(int N_linea){
+    // Apertura del archivo
+    this->set_fs(ruta, "rw");
 
-        // Leemos el archivo y obtenemos las lineas
-        std::string linea_aux;
-        int linea_actual = 0; // ultima linea escrita
+    // Leemos el archivo y obtenemos las lineas
+    std::string linea_aux;
+    int linea_actual = 0; // ultima linea escrita
 
-        fs.clear();
-        fs.seekp(0);
-        fs.seekg(0);
+    fs.clear();
+    fs.seekp(0);
+    fs.seekg(0);
 
-        bool leida = false;
-        while(getline(fs, linea_aux)){
-            linea_actual++;
+    bool leida = false;
+    while(getline(fs, linea_aux)){
+        linea_actual++;
 
-            if(linea_actual == N_linea){
-                leida= true;
-                break;
-            }
+        if(linea_actual == N_linea){
+            leida= true;
+            break;
         }
+    }
 
-        if(leida){
-            std::cout << linea_aux << std::endl;
+    if(leida){
+        std::cout << linea_aux << std::endl;
+
+    }else{
+        std::cout << "La linea no se pudo leer" << std::endl;
+    }
+}
     
-        }else{
-            std::cout << "La linea no se pudo leer" << std::endl;
-        }
+
+
+
+void File_P::Borrar_Archivo(){
+
+}
+
+void File_P::MostrarDatos(){
+
+}
+
+void File_P::MostrarArchivo(){
+    this->set_fs(ruta, "r");
+    std::string linea_aux = "";
+    std::string contenido;
+
+    while(getline(fs, linea_aux)){
+        contenido += linea_aux + "\n";
     }
-
-    void File_P::Borrar_Archivo(){
-
-    }
-
-    void File_P::MostrarDatos(){
-
-    }
-
-    void File_P::MostrarArchivo(){
-        this->set_fs(ruta, "r");
-        std::string linea_aux = "";
-        std::string contenido;
-
-        while(getline(fs, linea_aux)){
-            contenido += linea_aux + "\n";
-        }
-        std::cout << contenido << std::endl;
-    }
+    std::cout << contenido << std::endl;
+}

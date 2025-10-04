@@ -1,12 +1,35 @@
+#include <cstring>
 #include <iostream>
+#include <vector>
+#include <variant>
+#include <fstream>
+#include <algorithm>
+
 #include "File_P.h"
 
 int main() {
+    
+    std::string str_aux = " <codigo>312312</codigo>";
+
+    size_t pos = str_aux.find("<"); 
+    size_t pos_f = str_aux.find(">");
+
+    std::cout << pos << std::endl;
+    std::cout << pos_f << std::endl;
+    std::cout << str_aux.substr(pos+1, pos_f-(pos+1)) << std::endl; ;
+    
+    pos = str_aux.find("</");
+    std::cout << pos << std::endl; 
+    std::cout << str_aux.substr(pos_f+1, pos-(pos_f+1)) << std::endl; 
+
+
+
     File_P archivo;
 
     // Ruta
     archivo.set_fs("./datos.txt", "w"); 
     archivo.set_FileType('c');
+    
 
     // Preguntar si se quiere reescribir
     std::string comando;
