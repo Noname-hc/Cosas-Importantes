@@ -366,10 +366,24 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
         break;
     
         default:
-        
+            std::cout << "No es un tipo de archivo valido" << std::endl;
+
         break;
+
+        for(int i=0; i < info_k.size() ;i++){
+            std::string tipo_d_k = this->QueTipoEs(info_k[i]);
+            std::string tipo_d_v = this->QueTipoEs(info_v[i]);
+
+            if(tipo_d_k == "int"){
+                std::cout << std::get<int>(info_k[i]) << ":";
+
+            }if(tipo_d_v == "double"){
+                std::cout << std::get<double>(info_k[i]) << std::endl;
+            }
+        }
     }
 }
+
 
 void File_P::Leer_Linea(int N_linea){
     // Apertura del archivo
@@ -421,4 +435,23 @@ void File_P::MostrarArchivo(){
         contenido += linea_aux + "\n";
     }
     std::cout << contenido << std::endl;
+}
+
+
+
+// Utiles========================================
+
+std::string File_P::QueTipoEs(datos& var){ // devuelve un string "double" "int" o "string" segun el tipo de dato del elemento tipo variant
+    
+    if(std::holds_alternative<int>(var)){
+        return "int";
+
+    }else if(std::holds_alternative<double>(var)){
+        return "double";
+
+    }else if(std::holds_alternative<std::string>(var)){
+        return "string";
+    }
+
+    return "-1";
 }

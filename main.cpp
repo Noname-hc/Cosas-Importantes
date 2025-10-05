@@ -8,21 +8,6 @@
 #include "File_P.h"
 
 int main() {
-    
-    std::string str_aux = " <codigo>312312</codigo>";
-
-    size_t pos = str_aux.find("<"); 
-    size_t pos_f = str_aux.find(">");
-
-    std::cout << pos << std::endl;
-    std::cout << pos_f << std::endl;
-    std::cout << str_aux.substr(pos+1, pos_f-(pos+1)) << std::endl; ;
-    
-    pos = str_aux.find("</");
-    std::cout << pos << std::endl; 
-    std::cout << str_aux.substr(pos_f+1, pos-(pos_f+1)) << std::endl; 
-
-
 
     File_P archivo;
 
@@ -33,7 +18,7 @@ int main() {
 
     // Preguntar si se quiere reescribir
     std::string comando;
-    std::cout << "\n¿Quieres reescribir alguna linea? (s/n): " << std::endl;
+    std::cout << "\n¿Quieres reescribir alguna linea? (s/n) (una sola): " << std::endl;
     getline(std::cin, comando);
     std::cout << comando << std::endl;
 
@@ -53,12 +38,28 @@ int main() {
         std::cout << "\nContenido del archivo despues de reescribir:" << std::endl;
         archivo.Leer_Archivo();
     } else {
-        std::cout << "¿quieres escribir al final de la linea?" << std::endl;
+        std::cout << "¿quieres escribir al final del archivo? (S/n) (muchas lineas)" << std::endl;
         std::getline(std::cin, comando);
 
         if(comando == "s" || comando == "S"){
             archivo.EscribirArchivo();
+            
+            std::cout << "Archivo:" << std::endl;
+            archivo.Leer_Archivo();
         }
+        
+
+        std::cout << "¿quieres leer un formato en especifico de archivo? (S/n)" << std::endl;
+        std::cin >> comando;
+
+        if(comando == "S" || comando == "s"){
+            std::cout << "¿de que tipo? (c, x o j)" << std::endl;
+            std::cin >> comando;
+
+            archivo.set_FileType(*comando.c_str());
+            archivo.Leer_Tipo_De_Archivo('x');
+        }
+
     }
     return 0;
 }
