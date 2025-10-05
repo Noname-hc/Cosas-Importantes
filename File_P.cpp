@@ -175,77 +175,6 @@ void File_P::Reescribir_Linea(std::string &frase, int N_linea) {
 }
 
 
-// Método para leer y mostrar en formato elegido (csv, json, xml)
-/*void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
-
-    this->set_fs(ruta,"r");
-
-    std::string linea;
-    std::vector<std::vector<std::string>> contenido;
-
-    // Leer el archivo línea por línea y separarlo en tokens (muy simple, por comas o espacios)
-    while (getline(fs, linea)) {
-        std::vector<std::string> fila;
-        std::string token;
-        for (char c : linea) {
-            if (c == ',' || c == ' ' || c == '\t') {
-                if (!token.empty()) {
-                    fila.push_back(token);
-                    token.clear();
-                }
-            } else {
-                token.push_back(c);
-            }
-        }
-        if (!token.empty()) fila.push_back(token);
-        contenido.push_back(fila);
-    }
-
-    // Mostrar según FileType
-    switch (FileType) {
-        case 'c':  // CSV
-            for (auto &fila : contenido) {
-                for (size_t i = 0; i < fila.size(); i++) {
-                    std::cout << fila[i];
-                    if (i < fila.size() - 1) std::cout << ",";
-                }
-                std::cout << "\n";
-            }
-            break;
-
-        case 'j':  // JSON
-            std::cout << "[\n";
-            for (size_t i = 0; i < contenido.size(); i++) {
-                std::cout << "  { ";
-                for (size_t j = 0; j < contenido[i].size(); j++) {
-                    std::cout << "\"col" << j + 1 << "\": \"" << contenido[i][j] << "\"";
-                    if (j < contenido[i].size() - 1) std::cout << ", ";
-                }
-                std::cout << " }";
-                if (i < contenido.size() - 1) std::cout << ",";
-                std::cout << "\n";
-            }
-            std::cout << "]\n";
-            break;
-
-        case 'x':  // XML
-            std::cout << "<root>\n";
-            for (size_t i = 0; i < contenido.size(); i++) {
-                std::cout << "  <row>\n";
-                for (size_t j = 0; j < contenido[i].size(); j++) {
-                    std::cout << "    <col" << j + 1 << ">" << contenido[i][j] << "</col" << j + 1 << ">\n";
-                }
-                std::cout << "  </row>\n";
-            }
-            std::cout << "</root>\n";
-            break;
-
-        default:
-            std::cerr << "Error: tipo de archivo no soportado. Usa 'c'=CSV, 'j'=JSON, 'x'=XML.\n";
-            break;
-    }
-}*/
-
 void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
     // Apertura del archivo en modo lectura
     this->set_fs(ruta, "r");
@@ -277,28 +206,33 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
         case 'x':
             for (int i=0; i < contenido.size();i++){
                 str_aux = contenido[i];
-
+                
+                str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
                 pos = str_aux.find("<"); 
                 size_t pos_f = str_aux.find(">");
 
                 if(pos != std::string::npos || pos_f != std::string::npos){
-
-                    str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
 
                     key_w = str_aux.substr(pos+1, pos_f-(pos+1));
                     info_k.push_back(key_w);
 
                     pos = str_aux.find("</");
                     valor = str_aux.substr(pos_f+1, pos-(pos_f+1));
-    
-                    if(std::stoi(valor)){
-                        info_v.push_back(std::stoi(valor));
 
-                    }else if(std::stod(valor)){
-                        info_v.push_back(std::stod(valor));
-                    
-                    }else{
-                        info_v.push_back(valor);
+
+                    try {
+                        int num = std::stoi(valor);
+                        info_v.push_back(num);
+                        
+                    }
+                    catch (...) {
+                        try {
+                            double num = std::stod(valor);
+                            info_v.push_back(num);
+                        }
+                        catch (...) {
+                            info_v.push_back(valor); // valor es un string si llegamos a este punto
+                        }
                     }
 
                 } else{
@@ -311,23 +245,30 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
             for (int i=0; i < contenido.size();i++){
                 str_aux = contenido[i];
 
+                str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
                 pos = str_aux.find(","); // Buscamos ","
+                size_t pos_f = str_aux.find(",", pos+1);
+
                 if(pos != std::string::npos){
 
-                    str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
                     key_w = str_aux.substr(0, pos); 
-                    valor = str_aux.substr(pos+1);
+                    valor = str_aux.substr(pos+1, pos_f-(pos+1));
 
                     info_k.push_back(key_w);
 
-                    if(std::stoi(valor)){
-                        info_v.push_back(std::stoi(valor));
-
-                    }else if(std::stod(valor)){
-                        info_v.push_back(std::stod(valor));
-                    
-                    }else{
-                        info_v.push_back(valor);
+                    try {
+                        int num = std::stoi(valor);
+                        info_v.push_back(num);
+                        
+                    }
+                    catch (...) {
+                        try {
+                            double num = std::stod(valor);
+                            info_v.push_back(num);
+                        }
+                        catch (...) {
+                            info_v.push_back(valor); // valor es un string si llegamos a este punto
+                        }
                     }
 
                 } else{
@@ -340,23 +281,28 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
             for (int i=0; i < contenido.size();i++){
                 str_aux = contenido[i];
 
+                str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
                 pos = str_aux.find(":"); // Buscamos ":"
                 if(pos != std::string::npos){
 
-                    str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
                     key_w = str_aux.substr(0, pos); 
                     valor = str_aux.substr(pos+1);
 
                     info_k.push_back(key_w);
 
-                    if(std::stoi(valor)){
-                        info_v.push_back(std::stoi(valor));
-
-                    }else if(std::stod(valor)){
-                        info_v.push_back(std::stod(valor));
-                    
-                    }else{
-                        info_v.push_back(valor);
+                    try {
+                        int num = std::stoi(valor);
+                        info_v.push_back(num);
+                        
+                    }
+                    catch (...) {
+                        try {
+                            double num = std::stod(valor);
+                            info_v.push_back(num);
+                        }
+                        catch (...) {
+                            info_v.push_back(valor); // valor es un string si llegamos a este punto
+                        }
                     }
 
                 } else{
@@ -369,18 +315,33 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
             std::cout << "No es un tipo de archivo valido" << std::endl;
 
         break;
+    }
 
-        for(int i=0; i < info_k.size() ;i++){
-            std::string tipo_d_k = this->QueTipoEs(info_k[i]);
-            std::string tipo_d_v = this->QueTipoEs(info_v[i]);
+    for(int i=0; i < info_k.size() ;i++){
+        std::string tipo_d_k = QueTipoEs(info_k[i]);
+        std::string tipo_d_v = QueTipoEs(info_v[i]);
 
-            if(tipo_d_k == "int"){
-                std::cout << std::get<int>(info_k[i]) << ":";
+        if(tipo_d_k == "int"){
+            std::cout << *std::get_if<int>(&info_k[i]) << ":";
 
-            }if(tipo_d_v == "double"){
-                std::cout << std::get<double>(info_k[i]) << std::endl;
-            }
+        }else if(tipo_d_k == "double"){
+            std::cout << *std::get_if<double>(&info_k[i]) << ":";
+
+        }else if(tipo_d_k == "string"){
+            std::cout << *std::get_if<std::string>(&info_k[i]) << ":";
+        
         }
+        if(tipo_d_v == "int"){
+            std::cout << *std::get_if<int>(&info_v[i]) << std::endl;
+        
+        }else if(tipo_d_v == "double"){
+            std::cout << *std::get_if<double>(&info_v[i]) << std::endl;
+        
+        }else if(tipo_d_v == "string"){
+            std::cout << *std::get_if<std::string>(&info_v[i]) << std::endl;
+        
+        }
+
     }
 }
 
@@ -441,7 +402,7 @@ void File_P::MostrarArchivo(){
 
 // Utiles========================================
 
-std::string File_P::QueTipoEs(datos& var){ // devuelve un string "double" "int" o "string" segun el tipo de dato del elemento tipo variant
+std::string File_P::QueTipoEs(const datos& var){ // devuelve un string "double" "int" o "string" segun el tipo de dato del elemento tipo variant
     
     if(std::holds_alternative<int>(var)){
         return "int";

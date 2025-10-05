@@ -35,7 +35,7 @@ class File_P{
         void MostrarArchivo();
 
         // Utiles==================================================================
-        std::string QueTipoEs(datos &var);
+        std::string QueTipoEs(const datos &var);
 
 
     protected:

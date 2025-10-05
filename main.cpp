@@ -20,7 +20,6 @@ int main() {
     std::string comando;
     std::cout << "\n¿Quieres reescribir alguna linea? (s/n) (una sola): " << std::endl;
     getline(std::cin, comando);
-    std::cout << comando << std::endl;
 
     if (comando == "S" || comando == "s") {
         std::string reemplazo;
