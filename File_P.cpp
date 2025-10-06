@@ -246,34 +246,49 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
                 str_aux = contenido[i];
 
                 str_aux.erase(std::remove(str_aux.begin(), str_aux.end(), ' '), str_aux.end());// eliminamos los espacios
+
                 pos = str_aux.find(","); // Buscamos ","
                 size_t pos_f = str_aux.find(",", pos+1);
+                size_t pos_inicial = 0;
 
-                if(pos != std::string::npos){
+                while(pos_f != std::string::npos && pos != std::string::npos){
 
-                    key_w = str_aux.substr(0, pos); 
-                    valor = str_aux.substr(pos+1, pos_f-(pos+1));
+                    pos = str_aux.find(",", pos_inicial); // Buscamos ","
+                    pos_f = str_aux.find(",", pos+1);
 
-                    info_k.push_back(key_w);
+                    if(pos != std::string::npos){
 
-                    try {
-                        int num = std::stoi(valor);
-                        info_v.push_back(num);
-                        
-                    }
-                    catch (...) {
+                        key_w = str_aux.substr(pos_inicial, pos-pos_inicial); 
+
+                        if(pos_f == std::string::npos){
+                            valor = str_aux.substr(pos+1);
+                        }else{
+                            valor = str_aux.substr(pos+1, pos_f-(pos+1));
+                        }
+
+
+                        info_k.push_back(key_w);
+
                         try {
-                            double num = std::stod(valor);
+                            int num = std::stoi(valor);
                             info_v.push_back(num);
+                            
                         }
                         catch (...) {
-                            info_v.push_back(valor); // valor es un string si llegamos a este punto
+                            try {
+                                double num = std::stod(valor);
+                                info_v.push_back(num);
+                            }
+                            catch (...) {
+                                info_v.push_back(valor); // valor es un string si llegamos a este punto
+                            }
                         }
-                    }
-
-                } else{
-                    continue;
-                }   
+                        
+                        pos_inicial = pos_f+1;
+                    } else{
+                        continue;
+                    }   
+                }
             }
         break;
 
