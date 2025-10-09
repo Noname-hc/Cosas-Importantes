@@ -4,6 +4,7 @@
 #include <variant>
 #include <fstream>
 #include <algorithm>
+#include <iomanip>
 
 #include "File_P.h"
 
@@ -356,8 +357,16 @@ void File_P::Leer_Tipo_De_Archivo(char tipo_de_archivo) {
             std::cout << *std::get_if<std::string>(&info_v[i]) << std::endl;
         
         }
-
     }
+
+    /*std::cout << "\nContenido parseado:\n";
+    for (size_t i = 0; i < info_k.size() && i < info_v.size(); ++i) {
+        std::cout << std::left << std::setw(20);
+        std::visit([](auto&& arg) { std::cout << arg; }, info_k[i]);
+        std::cout << " -> ";
+        std::visit([](auto&& arg) { std::cout << arg; }, info_v[i]);
+        std::cout << "\n";
+    }*/
 }
 
 
